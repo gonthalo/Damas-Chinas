@@ -7,7 +7,10 @@ var screen_ancho = lienzo.width;
 var tablero = [];
 var DIFS = [[0, 1], [1, 0], [-1, 0], [0, -1], [1, -1], [-1, 1]];
 var color1, color2, color0
+var compTurn;
+var turn;
 
+//funciones auxiliares
 
 function ynt(num){
 	if (num > 0){
@@ -15,6 +18,19 @@ function ynt(num){
 	}
 	return parseInt(num) - 1
 }
+
+function barajar(lis){
+	nn = lis.length;
+	for (var ii=0; ii<nn; ii++){
+		aa = ynt(Math.random()*nn);
+		bb = ynt(Math.random()*nn);
+		aux = lis[aa];
+		lis[aa] = lis[bb];
+		lis[bb] = aux;
+	}
+}
+
+// funciones de la parte grafica
 
 function randcol(){
 	var lis = [parseInt(Math.random()*4)*85, parseInt(Math.random()*4)*85, parseInt(Math.random()*4)*85];
@@ -83,6 +99,12 @@ function dibujar(){
 	for (var ii=1; ii<8; ii++){
 		for (var jj=1; jj<8; jj++){
 			circle((jj - ii)*15 + 140, (ii + jj)*26 - 2, 8.2, color0);
+			if (tablero[ii][jj] == 1){
+				circle((jj - ii)*15 + 140, (ii + jj)*26 - 2, 10.3, color1);
+			}
+			if (tablero[ii][jj] == 2){
+				circle((jj - ii)*15 + 140, (ii + jj)*26 - 2, 10.3, color2);
+			}
 		}
 	}
 }
@@ -113,40 +135,124 @@ function moves(tabl, pieza){
 		}
 	}
 	while (nuevas.length > 0){
-		x0, y0 = nuevas[0][0], nuevas[0][1];
+		x0 = nuevas[0][0];
+		y0 = nuevas[0][1];
 		nuevas.pop(0);
 		for (var ii=0; ii<6; ii++){
-			dx, dy = DIFS[ii][0], DIFS[ii][1];
+			dx = DIFS[ii][0];
+			dy = DIFS[ii][1];
+			xx = x0 + 2*dx;
 			yy = y0 + 2*dy;
 			if (tabl[xx - dx][yy - dy] > 0 && tabl[xx][yy] == 0){
-				if (viejas[ii][jj]){
+				if (viejas[xx][yy]){
 					nuevas[nuevas.length] = [xx, yy];
-					viejas[ii][jj] = false;
+					viejas[xx][yy] = false;
 				}
 			}
 		}
 	}
 	for (var ii=0; ii<6; ii++){
-		dx, dy = DIFS[ii][0], DIFS[ii][1];
+		dx = DIFS[ii][0];
+		dy = DIFS[ii][1];
 		if (tabl[pieza[0] + dx][pieza[1] + dy] == 0){
 			viejas[pieza[0] + dx][pieza[1] + dy] = false;
 		}
 	}
 	for (var ii=1; ii<8; ii++){
-		if (viejas[ii][jj]==false){
-			nuevas[nuevas.length] = [ii, jj];
+		for (var jj=1; jj<8; jj++){
+			if (viejas[ii][jj]==false){
+				nuevas[nuevas.length] = [ii, jj];
+			}
 		}
 	}
-	return nuevas
+	return nuevas;
 }
 
 
+function uf(origen, fin, turno){
+	if (turno==1){
+		return Math.exp(Math.log(16 - fin[0] - fin[1])*1.1) - Math.exp(Math.log(16 - origen[0] - origen[1])*1.1);
+	}
+	return Math.exp(Math.log(fin[0] + fin[1])*1.1) - Math.exp(Math.log(origen[0] + origen[1])*1.1)
+}
+
+function compare(a, b){
+	return uf(a[0], a[1], compTurn) - uf(b[0], b[1], compTurn);
+}
+
+function movimientos(tabl, turno, mejores){
+	piezas = [];
+	suma = 0;
+	for (var ii=0; ii<8; ii++){
+		for (var jj=1; jj<8; jj++){
+			if (tabl[ii][jj]==turno){
+				piezas[piezas.length] = [ii, jj];
+				suma = suma + ii + jj;
+			}
+		}
+	}
+	movs = [];
+	for (var ii=0; ii<piezas.length; ii++){
+		lis = moves(tabl, piezas[ii]);
+		for (var jj=0; jj<lis.length; jj++){
+			movs[movs.length] = [piezas[ii], lis[jj]];
+		}
+	}
+	compTurn = turno;
+	movs.sort(compare);
+	movs = movs.slice(0, mejores);
+	barajar(movs);
+	movs.sort(compare);
+	return [movs, suma];
+}
+
+function mover(tabl, ori, fin){
+	console.log('Hola');
+	if (ori[0] == fin[0] && fin[1] == ori[1]){
+		return NaN
+	}
+	x0 = ori[0];
+	y0 = ori[1];
+	x1 = fin[0];
+	y1 = fin[1];
+	tabl[x1][y1] = tabl[x0][y0];
+	tabl[x0][y0] = 0;
+}
+
+POS1 = [[1, 1], [1, 2], [2, 1], [3, 1], [1, 3], [2, 2]];
+POS2 = [[7, 7], [6, 6], [7, 6], [6, 7], [7, 5], [5, 7]];
+
 function empezar(){
 	borrar();
+	for (var tt=0; tt<POS1.length; tt++){
+		tablero[POS1[tt][0]][POS1[tt][1]] = 1;
+		tablero[POS2[tt][0]][POS2[tt][1]] = 2;
+	}
 	color1 = randcol();
 	color2 = randcol();
 	color0 = [255, 255, 255];
+	turn = 1;
+}
+
+
+
+function actualizar(){
+	lis = movimientos(tablero, turn, 5);
+	jugada = lis[0][0];
+	console.log(jugada);
+	ss = lis[1];
+	if (turn==1 && ss==76){
+		empezar();
+	}
+	if (turn==2 && ss==20){
+		empezar();
+	}
+	mover(tablero, jugada[0], jugada[1]);
+	turn = 3 - turn;
+	dibujar();
 }
 
 empezar();
 dibujar();
+
+setInterval(actualizar, 1000);
