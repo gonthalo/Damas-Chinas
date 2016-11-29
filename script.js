@@ -9,6 +9,10 @@ var DIFS = [[0, 1], [1, 0], [-1, 0], [0, -1], [1, -1], [-1, 1]];
 var color1, color2, color0
 var compTurn;
 var turn;
+var pausa = false;
+
+var POS1 = [[1, 1], [1, 2], [2, 1], [3, 1], [1, 3], [2, 2]];
+var POS2 = [[7, 7], [6, 6], [7, 6], [6, 7], [7, 5], [5, 7]];
 
 //funciones auxiliares
 
@@ -34,7 +38,7 @@ function barajar(lis){
 
 function randcol(){
 	var lis = [parseInt(Math.random()*4)*85, parseInt(Math.random()*4)*85, parseInt(Math.random()*4)*85];
-	if (lis[0] + lis[1] + lis[2]==0){
+	if (lis[0] + lis[1] + lis[2] == 0 || lis[0] + lis[1] + lis[2] == 765){
 		return randcol();
 	}
 	return lis;
@@ -109,6 +113,7 @@ function dibujar(){
 	}
 }
 
+//funciones del juego
 
 function borrar(){
 	for (var ii=0; ii<9; ii++){
@@ -135,9 +140,9 @@ function moves(tabl, pieza){
 		}
 	}
 	while (nuevas.length > 0){
-		x0 = nuevas[0][0];
-		y0 = nuevas[0][1];
-		nuevas.pop(0);
+		aux = nuevas.shift();
+		x0 = aux[0];
+		y0 = aux[1];
 		for (var ii=0; ii<6; ii++){
 			dx = DIFS[ii][0];
 			dy = DIFS[ii][1];
@@ -207,7 +212,6 @@ function movimientos(tabl, turno, mejores){
 }
 
 function mover(tabl, ori, fin){
-	console.log('Hola');
 	if (ori[0] == fin[0] && fin[1] == ori[1]){
 		return NaN
 	}
@@ -219,8 +223,39 @@ function mover(tabl, ori, fin){
 	tabl[x0][y0] = 0;
 }
 
-POS1 = [[1, 1], [1, 2], [2, 1], [3, 1], [1, 3], [2, 2]];
-POS2 = [[7, 7], [6, 6], [7, 6], [6, 7], [7, 5], [5, 7]];
+function minimax(tabl, turno, iter, ramas, interes, good){
+	opc = movimientos(tabl, turno, ramas)[0];
+	if (iter==0){
+		if (good){
+			return [opc[0], uf(opc[0][0], opc[0][1], turno)];
+		} else {
+			return uf(opc[0][0], opc[0][1], turno);
+		}
+	}
+	record = -100;
+	best = NaN;
+	for (var kk=0; kk<opc.length; kk++){
+		newtab = [];
+		for (var ii=0; ii<9; ii++){
+			newtab[ii] = [];
+			for (var jj=0; jj<9; jj++){
+				newtab[ii][jj] = tabl[ii][jj];
+			}
+		}
+		mover(newtab, opc[kk][0], opc[kk][1]);
+		value = uf(opc[kk][0], opc[kk][1], turno) - interes*minimax(newtab, 3 - turno, iter - 1, ramas, interes, false);
+		if (value > record){
+			record = value;
+			best = opc[kk];
+		}
+	}
+	if (good){
+		return [best, record];
+	} else {
+		return record;
+	}
+
+}
 
 function empezar(){
 	borrar();
@@ -234,25 +269,34 @@ function empezar(){
 	turn = 1;
 }
 
-
-
 function actualizar(){
+	if (pausa){
+		return;
+	}
 	lis = movimientos(tablero, turn, 5);
 	jugada = lis[0][0];
-	console.log(jugada);
+	//console.log(jugada);
 	ss = lis[1];
 	if (turn==1 && ss==76){
 		empezar();
+		return
 	}
 	if (turn==2 && ss==20){
 		empezar();
+		return
 	}
 	mover(tablero, jugada[0], jugada[1]);
 	turn = 3 - turn;
 	dibujar();
 }
 
+function paso(){
+	pausa = false;
+	actualizar();
+	pausa = true;
+}
+
 empezar();
 dibujar();
 
-setInterval(actualizar, 1000);
+setInterval(actualizar, 200);
