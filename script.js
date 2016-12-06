@@ -14,6 +14,9 @@ var pausa = false;
 var POS1 = [[1, 1], [1, 2], [2, 1], [3, 1], [1, 3], [2, 2]];
 var POS2 = [[7, 7], [6, 6], [7, 6], [6, 7], [7, 5], [5, 7]];
 
+var MAR1 = 450;
+var MAR2 = 88;
+
 //funciones auxiliares
 
 function ynt(num){
@@ -75,39 +78,41 @@ function circle(x, y, r, c){
 }
 
 function dibujar(){
+	pluma.fillStyle = "white";
+	pluma.fillRect(0, 0, screen_ancho, screen_alto);
 	pluma.fillStyle = "black";
 	pluma.beginPath();
-	pluma.moveTo(50, 206);
-	pluma.lineTo(230, 206);
+	pluma.moveTo(MAR1 - 90, 208 + MAR2);
+	pluma.lineTo(MAR1 + 90, 208 + MAR2);
 	pluma.stroke();
 	for (var ii=1; ii<8; ii++){
 		pluma.beginPath();
-		pluma.moveTo(15*ii + 125, 26*ii + 24);
-		pluma.lineTo(15*ii + 35, 26*ii + 180);
+		pluma.moveTo(15*(ii - 1) + MAR1, 26*(ii + 1) + MAR2);
+		pluma.lineTo(15*(ii - 7) + MAR1, 26*(ii + 7) + MAR2);
 		pluma.stroke();
 		pluma.beginPath();
-		pluma.moveTo(155 - 15*ii, 26*ii + 24);
-		pluma.lineTo(245 - 15*ii, 26*ii + 180);
+		pluma.moveTo(MAR1 - 15*(ii - 1), 26*(ii + 1) + MAR2);
+		pluma.lineTo(MAR1 - 15*(ii - 7), 26*(ii + 7) + MAR2);
 		pluma.stroke();
 	}
 	for (var ii = 2; ii<7; ii++){
 		pluma.beginPath();
-		pluma.moveTo(15*ii + 125, 26*ii + 24);
-		pluma.lineTo(155 - 15*ii, 26*ii + 24);
+		pluma.moveTo(15*(ii - 1) + MAR1, 26*(ii + 1) + MAR2);
+		pluma.lineTo(MAR1 - 15*(ii - 1), 26*(ii + 1) + MAR2);
 		pluma.stroke();
 		pluma.beginPath();
-		pluma.moveTo(245 - 15*ii, 26*ii + 180);
-		pluma.lineTo(15*ii + 35, 26*ii + 180);
+		pluma.moveTo(MAR1 - 15*(ii - 7), 26*(ii + 7) + MAR2);
+		pluma.lineTo(15*(ii - 7) + MAR1, 26*(ii + 7) + MAR2);
 		pluma.stroke();
 	}
 	for (var ii=1; ii<8; ii++){
 		for (var jj=1; jj<8; jj++){
-			circle((jj - ii)*15 + 140, (ii + jj)*26 - 2, 8.2, color0);
+			circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 8.2, color0);
 			if (tablero[ii][jj] == 1){
-				circle((jj - ii)*15 + 140, (ii + jj)*26 - 2, 10.3, color1);
+				circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 10.3, color1);
 			}
 			if (tablero[ii][jj] == 2){
-				circle((jj - ii)*15 + 140, (ii + jj)*26 - 2, 10.3, color2);
+				circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 10.3, color2);
 			}
 		}
 	}
@@ -205,10 +210,10 @@ function movimientos(tabl, turno, mejores){
 	}
 	compTurn = turno;
 	movs.sort(compare);
-	movs = movs.slice(0, mejores);
+	movs = movs.slice(0, 2*mejores);
 	barajar(movs);
 	movs.sort(compare);
-	return [movs, suma];
+	return [movs.slice(0, mejores), suma];
 }
 
 function mover(tabl, ori, fin){
@@ -223,18 +228,54 @@ function mover(tabl, ori, fin){
 	tabl[x0][y0] = 0;
 }
 
-function minimax(tabl, turno, iter, ramas, interes, good){
-	opc = movimientos(tabl, turno, ramas)[0];
-	if (iter==0){
-		if (good){
-			return [opc[0], uf(opc[0][0], opc[0][1], turno)];
-		} else {
-			return uf(opc[0][0], opc[0][1], turno);
+function gana(tabl, turno){
+	if (turno==1){
+		for (var ii=0; ii<POS2.length; ii++){
+			if (tabl[POS2[ii][0]][POS2[ii][1]] != 1){
+				return false;
+			}
+		}
+		return true;
+	}
+	for (var ii=0; ii<POS1.length; ii++){
+		if (tabl[POS1[ii][0]][POS1[ii][1]] != 2){
+			return false;
 		}
 	}
-	record = -100;
-	best = NaN;
-	for (var kk=0; kk<opc.length; kk++){
+	return true;
+}
+
+function minimax(tabl, turno, iter, ramas, interes, good){
+	if (good){
+		if (gana(tabl, turno)||gana(tabl, 3 - turno)){
+			return [[[0, 0], [0, 0]]];
+		}
+		opc = [];
+		best = [];
+		record = [];
+		for (var tt=0; tt<=iter; tt++){
+			opc[tt] = [];
+			best[tt] = [];
+			record[tt] = 1000;
+		}
+	}
+	if (gana(tabl, 3 - turno)){
+		if (gana(tabl, turno)){
+			return 0;
+		}
+		return 100;
+	}
+	opc[iter] = movimientos(tabl, turno, ramas)[0];
+	if (iter==0){
+		if (good){
+			return [opc[iter][0], uf(opc[iter][0][0], opc[iter][0][1], turno)];
+		} else {
+			return uf(opc[iter][0][0], opc[iter][0][1], turno);
+		}
+	}
+	record[iter] = 100;
+	best[iter] = NaN;
+	for (var kk=0; kk<opc[iter].length; kk++){
 		newtab = [];
 		for (var ii=0; ii<9; ii++){
 			newtab[ii] = [];
@@ -242,17 +283,17 @@ function minimax(tabl, turno, iter, ramas, interes, good){
 				newtab[ii][jj] = tabl[ii][jj];
 			}
 		}
-		mover(newtab, opc[kk][0], opc[kk][1]);
-		value = uf(opc[kk][0], opc[kk][1], turno) - interes*minimax(newtab, 3 - turno, iter - 1, ramas, interes, false);
-		if (value > record){
-			record = value;
-			best = opc[kk];
+		mover(newtab, opc[iter][kk][0], opc[iter][kk][1]);
+		value = uf(opc[iter][kk][0], opc[iter][kk][1], turno) - interes*minimax(newtab, 3 - turno, iter - 1, ramas, interes, false);
+		if (value < record[iter]){
+			record[iter] = value;
+			best[iter] = opc[iter][kk];
 		}
 	}
 	if (good){
-		return [best, record];
+		return [best[iter], record[iter]];
 	} else {
-		return record;
+		return record[iter];
 	}
 
 }
@@ -274,20 +315,36 @@ function actualizar(){
 		return;
 	}
 	lis = movimientos(tablero, turn, 5);
-	jugada = lis[0][0];
+	jugada = [];
+	if (turn==1){
+		jugada = minimax(tablero, turn, 4, 5, 0.90, true)[0];
+	} else {
+		jugada = minimax(tablero, turn, 4, 5, 0.90, true)[0];
+	}
 	//console.log(jugada);
-	ss = lis[1];
-	if (turn==1 && ss==76){
-		empezar();
-		return
-	}
-	if (turn==2 && ss==20){
-		empezar();
-		return
-	}
 	mover(tablero, jugada[0], jugada[1]);
 	turn = 3 - turn;
 	dibujar();
+	if (gana(tablero, 1) || gana(tablero, 2)){
+		empezar();
+		return
+	}
+}
+
+function game_hb(bot){
+	empezar();
+	turn = 2;
+	dibujar();
+	while (!gana(tablero, 1) && !gana(tablero, 2)){
+		if (turn == 1){
+			jugada = choice(tablero, turn, bot);
+			mover(tablero, jugada[0], jugada[1]);
+			turn = 3 - turn
+			dibujar();
+		} else {
+			aux = 42;
+		}
+	}
 }
 
 function paso(){
@@ -296,7 +353,27 @@ function paso(){
 	pausa = true;
 }
 
+lienzo.addEventListener("click", function (e){
+	var x;
+	var y;
+	if (e.pageX || e.pageY) {
+		x = e.pageX;
+		y = e.pageY;
+	} else {
+		x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+		y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+	}
+	x -= lienzo.offsetLeft;
+	y -= lienzo.offsetTop;
+	console.log(x, y);
+	x0 = (x - MAR1)/30.0;
+	y0 = (y - MAR2)/52.0;
+	x = ynt(y0 - x0 + 0.5);
+	y = ynt(y0 + x0 + 0.5);
+	console.log(x, y);
+}, false);
+
 empezar();
 dibujar();
 
-setInterval(actualizar, 200);
+setInterval(actualizar, 500);
