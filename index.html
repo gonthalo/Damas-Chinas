@@ -10,22 +10,10 @@
 	<div>
 		<input type="button" onclick="pausa = !pausa" value="Pausa">
 		<input type="button" onclick="paso()" value="Mover">
-		<!--Tama&ntilde;o del tablero:
-		<input type="number" min="2" max="8" id="numero1" value="4">
-		<input type="button" onclick="reset()" value="Reset">
-		<input type="button" onclick="mover(); draw();" value="Mover">
-		<input type="button" onclick="crear_vida(); draw();" value="Crear vida">
-		<input type="button" onclick="draw()" value="Conway">
-		<input type="button" onclick="figura = 3" value="Fila">
-		<input type="button" onclick="figura = 4" value="Columna">-->
+		<input type="button" onclick="modo = 'BOT vs BOT'" value="2 Bots">
+		<input type="button" onclick="modo = 'BOT vs HUMANO'" value="Bot contra Humano">
+		<input type="button" onclick="cambiar_colores()" value="Cambiar colores">
 	</div>
-	<!--<div style="position:absolute; top: 300px; right: 200px; width:300px; height: 100px; border:2px solid rgb(5,200,100)">
-		<input type="radio" name="metodo" value="Conway" checked>
-		<br\>
-		<input type="radio" name="metodo" value="Día y noche" >
-		<br\>
-		<input type="radio" name="metodo" value="Highlife" >
-	</div>-->
 	<script type="text/javascript" src="script.js"></script>
 </body>
 </html>

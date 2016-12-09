@@ -16,6 +16,9 @@ var POS2 = [[7, 7], [6, 6], [7, 6], [6, 7], [7, 5], [5, 7]];
 
 var MAR1 = 450;
 var MAR2 = 88;
+var opciones = [];
+var seleccion = [];
+var modo = "BOT vs HUMANO";
 
 //funciones auxiliares
 
@@ -77,6 +80,15 @@ function circle(x, y, r, c){
 	}
 }
 
+function dibu_pieza(xx, yy){
+	if (tablero[xx][yy] == 1){
+		circle((yy - xx)*15 + MAR1, (xx + yy)*26 + MAR2, 10.3, color1);
+	}
+	if (tablero[xx][yy] == 2){
+		circle((yy - xx)*15 + MAR1, (xx + yy)*26 + MAR2, 10.3, color2);
+	}
+}
+
 function dibujar(){
 	pluma.fillStyle = "white";
 	pluma.fillRect(0, 0, screen_ancho, screen_alto);
@@ -108,12 +120,7 @@ function dibujar(){
 	for (var ii=1; ii<8; ii++){
 		for (var jj=1; jj<8; jj++){
 			circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 8.2, color0);
-			if (tablero[ii][jj] == 1){
-				circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 10.3, color1);
-			}
-			if (tablero[ii][jj] == 2){
-				circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 10.3, color2);
-			}
+			dibu_pieza(ii, jj);
 		}
 	}
 }
@@ -295,7 +302,12 @@ function minimax(tabl, turno, iter, ramas, interes, good){
 	} else {
 		return record[iter];
 	}
+}
 
+function cambiar_colores(){
+	color1 = randcol();
+	color2 = randcol();
+	dibujar();
 }
 
 function empezar(){
@@ -304,22 +316,24 @@ function empezar(){
 		tablero[POS1[tt][0]][POS1[tt][1]] = 1;
 		tablero[POS2[tt][0]][POS2[tt][1]] = 2;
 	}
-	color1 = randcol();
-	color2 = randcol();
 	color0 = [255, 255, 255];
 	turn = 1;
+	cambiar_colores();
 }
 
 function actualizar(){
 	if (pausa){
 		return;
 	}
+	if (modo == "BOT vs HUMANO" && turn == 1){
+		return;
+	}
 	lis = movimientos(tablero, turn, 5);
 	jugada = [];
 	if (turn==1){
-		jugada = minimax(tablero, turn, 4, 5, 0.90, true)[0];
+		jugada = minimax(tablero, turn, 6, 6, 0.93, true)[0];
 	} else {
-		jugada = minimax(tablero, turn, 4, 5, 0.90, true)[0];
+		jugada = minimax(tablero, turn, 6, 6, 0.93, true)[0];
 	}
 	//console.log(jugada);
 	mover(tablero, jugada[0], jugada[1]);
@@ -371,6 +385,28 @@ lienzo.addEventListener("click", function (e){
 	x = ynt(y0 - x0 + 0.5);
 	y = ynt(y0 + x0 + 0.5);
 	console.log(x, y);
+	if (tablero[x][y] == turn){
+		dibujar();
+		seleccion = [x, y];
+		opciones = moves(tablero, [x, y]);
+		for (var ii=0; ii<opciones.length; ii++){
+			dibu_pieza(opciones[ii][0], opciones[ii][1]);
+		}
+		return;
+	}
+	if (tablero[x][y] == 0){
+		for (ii=0; ii<opciones.length; ii++){
+			if (opciones[ii][0] == x && opciones[ii][1] == y){
+				mover(tablero, seleccion, opciones[ii]);
+				turn = 3 - turn;
+				if (gana(tablero, 1) || gana(tablero, 2)){
+					empezar();
+				}
+				dibujar();
+				return;
+			}
+		}
+	}
 }, false);
 
 empezar();
