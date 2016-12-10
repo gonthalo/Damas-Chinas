@@ -417,4 +417,4 @@ lienzo.addEventListener("click", function (e){
 empezar();
 dibujar();
 
-setInterval(actualizar, 500);
+setInterval(actualizar, 800);
