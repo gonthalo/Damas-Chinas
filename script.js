@@ -1,6 +1,7 @@
 
 var lienzo = document.getElementById("lienzo");
 var pluma = lienzo.getContext("2d");
+pluma.font = "16px Arial";
 var screen_alto = lienzo.height;
 var screen_ancho = lienzo.width;
 
@@ -80,7 +81,11 @@ function circle(x, y, r, c){
 	}
 }
 
-function dibu_pieza(xx, yy){
+function dibu_pieza(xx, yy, txt){
+	if (txt!=""){
+		pluma.fillStyle = rgbstr(color1);
+		pluma.fillText(txt, (yy - xx)*15 + MAR1 - 5, (xx + yy)*26 + MAR2 + 6);
+	}
 	if (tablero[xx][yy] == 1){
 		circle((yy - xx)*15 + MAR1, (xx + yy)*26 + MAR2, 10.3, color1);
 	}
@@ -120,7 +125,7 @@ function dibujar(){
 	for (var ii=1; ii<8; ii++){
 		for (var jj=1; jj<8; jj++){
 			circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 8.2, color0);
-			dibu_pieza(ii, jj);
+			dibu_pieza(ii, jj, "");
 		}
 	}
 }
@@ -390,7 +395,7 @@ lienzo.addEventListener("click", function (e){
 		seleccion = [x, y];
 		opciones = moves(tablero, [x, y]);
 		for (var ii=0; ii<opciones.length; ii++){
-			dibu_pieza(opciones[ii][0], opciones[ii][1]);
+			dibu_pieza(opciones[ii][0], opciones[ii][1], "X");
 		}
 		return;
 	}
@@ -412,4 +417,4 @@ lienzo.addEventListener("click", function (e){
 empezar();
 dibujar();
 
-setInterval(actualizar, 500);
+setInterval(actualizar, 800);
