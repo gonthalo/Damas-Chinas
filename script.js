@@ -6,17 +6,34 @@ var screen_alto = lienzo.height;
 var screen_ancho = lienzo.width;
 
 var tablero = [];
+var mi_tabl = [
+[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, -1, -1, -1, -1],
+[-1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, -1, -1, -1, -1],
+[-1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, -1, -1, -1, -1],
+[-1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
+[-1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1],
+[-1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1],
+[-1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1],
+[-1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1],
+[-1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1],
+[-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1],
+[-1, -1, -1, -1, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1],
+[-1, -1, -1, -1, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+[-1, -1, -1, -1, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+];
 var DIFS = [[0, 1], [1, 0], [-1, 0], [0, -1], [1, -1], [-1, 1]];
 var color1, color2, color0
 var compTurn;
 var turn;
 var pausa = false;
 
-var POS1 = [[1, 1], [1, 2], [2, 1], [3, 1], [1, 3], [2, 2]];
-var POS2 = [[7, 7], [6, 6], [7, 6], [6, 7], [7, 5], [5, 7]];
+var POS1 = [[4, 4], [4, 5], [5, 4], [6, 4], [4, 6], [5, 5], [5, 6], [6, 5], [4, 7], [7, 4]];
+var POS2 = [[10, 10], [9, 9], [10, 9], [9, 10], [10, 8], [8, 10], [8, 9], [9, 8], [7, 10], [10, 7]];
 
 var MAR1 = 450;
-var MAR2 = 88;
+var MAR2 = -60;
 var opciones = [];
 var seleccion = [];
 var modo = "BOT vs HUMANO";
@@ -83,7 +100,6 @@ function circle(x, y, r, c){
 
 function dibu_pieza(xx, yy, txt){
 	if (txt!=""){
-		pluma.fillStyle = rgbstr(color1);
 		pluma.fillText(txt, (yy - xx)*15 + MAR1 - 5, (xx + yy)*26 + MAR2 + 6);
 	}
 	if (tablero[xx][yy] == 1){
@@ -99,32 +115,34 @@ function dibujar(){
 	pluma.fillRect(0, 0, screen_ancho, screen_alto);
 	pluma.fillStyle = "black";
 	pluma.beginPath();
-	pluma.moveTo(MAR1 - 90, 208 + MAR2);
-	pluma.lineTo(MAR1 + 90, 208 + MAR2);
+	pluma.moveTo(MAR1 - 90, 364 + MAR2);
+	pluma.lineTo(MAR1 + 90, 364 + MAR2);
 	pluma.stroke();
-	for (var ii=1; ii<8; ii++){
+	for (var ii=4; ii<11; ii++){
 		pluma.beginPath();
-		pluma.moveTo(15*(ii - 1) + MAR1, 26*(ii + 1) + MAR2);
-		pluma.lineTo(15*(ii - 7) + MAR1, 26*(ii + 7) + MAR2);
+		pluma.moveTo(15*(ii - 4) + MAR1, 26*(ii + 4) + MAR2);
+		pluma.lineTo(15*(ii - 10) + MAR1, 26*(ii + 10) + MAR2);
 		pluma.stroke();
 		pluma.beginPath();
-		pluma.moveTo(MAR1 - 15*(ii - 1), 26*(ii + 1) + MAR2);
-		pluma.lineTo(MAR1 - 15*(ii - 7), 26*(ii + 7) + MAR2);
+		pluma.moveTo(MAR1 - 15*(ii - 4), 26*(ii + 4) + MAR2);
+		pluma.lineTo(MAR1 - 15*(ii - 10), 26*(ii + 10) + MAR2);
 		pluma.stroke();
 	}
 	for (var ii = 2; ii<7; ii++){
 		pluma.beginPath();
-		pluma.moveTo(15*(ii - 1) + MAR1, 26*(ii + 1) + MAR2);
-		pluma.lineTo(MAR1 - 15*(ii - 1), 26*(ii + 1) + MAR2);
+		pluma.moveTo(15*(ii - 1) + MAR1, 26*(ii + 7) + MAR2);
+		pluma.lineTo(MAR1 - 15*(ii - 1), 26*(ii + 7) + MAR2);
 		pluma.stroke();
 		pluma.beginPath();
-		pluma.moveTo(MAR1 - 15*(ii - 7), 26*(ii + 7) + MAR2);
-		pluma.lineTo(15*(ii - 7) + MAR1, 26*(ii + 7) + MAR2);
+		pluma.moveTo(MAR1 - 15*(ii - 7), 26*(ii + 13) + MAR2);
+		pluma.lineTo(15*(ii - 7) + MAR1, 26*(ii + 13) + MAR2);
 		pluma.stroke();
 	}
-	for (var ii=1; ii<8; ii++){
-		for (var jj=1; jj<8; jj++){
-			circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 8.2, color0);
+	for (var ii=1; ii<14; ii++){
+		for (var jj=1; jj<14; jj++){
+			if (tablero[ii][jj]!=-1){
+				circle((jj - ii)*15 + MAR1, (ii + jj)*26 + MAR2, 8.2, color0);
+			}
 			dibu_pieza(ii, jj, "");
 		}
 	}
@@ -133,26 +151,20 @@ function dibujar(){
 //funciones del juego
 
 function borrar(){
-	for (var ii=0; ii<9; ii++){
+	for (var ii=0; ii<15; ii++){
 		tablero[ii] = [];
-		for (var jj=0; jj<9; jj++){
-			tablero[ii][jj] = 0;
+		for (var jj=0; jj<15; jj++){
+			tablero[ii][jj] = mi_tabl[ii][jj];
 		}
-	}
-	for (var jj=0; jj<9; jj++){
-		tablero[0][jj] = -1;
-		tablero[8][jj] = -1;
-		tablero[jj][0] = -1;
-		tablero[jj][8] = -1;
 	}
 }
 
 function moves(tabl, pieza){
 	nuevas = [pieza];
 	viejas = [];
-	for (var ii=0; ii<9; ii++){
+	for (var ii=0; ii<15; ii++){
 		viejas[ii] = [];
-		for (var jj=0; jj<9; jj++){
+		for (var jj=0; jj<15; jj++){
 			viejas[ii][jj] = true;
 		}
 	}
@@ -180,8 +192,8 @@ function moves(tabl, pieza){
 			viejas[pieza[0] + dx][pieza[1] + dy] = false;
 		}
 	}
-	for (var ii=1; ii<8; ii++){
-		for (var jj=1; jj<8; jj++){
+	for (var ii=1; ii<14; ii++){
+		for (var jj=1; jj<14; jj++){
 			if (viejas[ii][jj]==false){
 				nuevas[nuevas.length] = [ii, jj];
 			}
@@ -193,9 +205,15 @@ function moves(tabl, pieza){
 
 function uf(origen, fin, turno){
 	if (turno==1){
-		return Math.exp(Math.log(16 - fin[0] - fin[1])*1.1) - Math.exp(Math.log(16 - origen[0] - origen[1])*1.1);
+		if (fin[0] < 4 || fin[0]>11){
+			return 20;
+		}
+		return Math.exp(Math.log(28 - fin[0] - fin[1] + (fin[0] == 11 || fin[1] == 11))*1.08) - Math.exp(Math.log(28 - origen[0] - origen[1])*1.08);
 	}
-	return Math.exp(Math.log(fin[0] + fin[1])*1.1) - Math.exp(Math.log(origen[0] + origen[1])*1.1)
+	if (fin[0] < 3 || fin[0]>10){
+		return 20;
+	}
+	return Math.exp(Math.log(fin[0] + fin[1] + (fin[0] == 3 || fin[1] == 3))*1.1) - Math.exp(Math.log(origen[0] + origen[1])*1.1)
 }
 
 function compare(a, b){
@@ -205,8 +223,8 @@ function compare(a, b){
 function movimientos(tabl, turno, mejores){
 	piezas = [];
 	suma = 0;
-	for (var ii=0; ii<8; ii++){
-		for (var jj=1; jj<8; jj++){
+	for (var ii=1; ii<14; ii++){
+		for (var jj=1; jj<14; jj++){
 			if (tabl[ii][jj]==turno){
 				piezas[piezas.length] = [ii, jj];
 				suma = suma + ii + jj;
@@ -259,6 +277,9 @@ function gana(tabl, turno){
 
 function minimax(tabl, turno, iter, ramas, interes, good){
 	if (good){
+		if (n_movs < 2){
+			return [[[4, 7], [5, 7]], uf([4, 7], [5, 7], turn)]
+		}
 		if (gana(tabl, turno)||gana(tabl, 3 - turno)){
 			return [[[0, 0], [0, 0]]];
 		}
@@ -289,9 +310,9 @@ function minimax(tabl, turno, iter, ramas, interes, good){
 	best[iter] = NaN;
 	for (var kk=0; kk<opc[iter].length; kk++){
 		newtab = [];
-		for (var ii=0; ii<9; ii++){
+		for (var ii=0; ii<15; ii++){
 			newtab[ii] = [];
-			for (var jj=0; jj<9; jj++){
+			for (var jj=0; jj<15; jj++){
 				newtab[ii][jj] = tabl[ii][jj];
 			}
 		}
@@ -322,15 +343,16 @@ function empezar(){
 		tablero[POS2[tt][0]][POS2[tt][1]] = 2;
 	}
 	color0 = [255, 255, 255];
-	turn = 1;
+	turn = 2;
 	cambiar_colores();
+	n_movs = 0;
 }
 
 function actualizar(){
 	if (pausa){
 		return;
 	}
-	if (modo == "BOT vs HUMANO" && turn == 1){
+	if (modo == "BOT vs HUMANO" && turn == 2){
 		return;
 	}
 	lis = movimientos(tablero, turn, 5);
@@ -343,6 +365,7 @@ function actualizar(){
 	//console.log(jugada);
 	mover(tablero, jugada[0], jugada[1]);
 	turn = 3 - turn;
+	n_movs++;
 	dibujar();
 	if (gana(tablero, 1) || gana(tablero, 2)){
 		empezar();
@@ -392,6 +415,7 @@ lienzo.addEventListener("click", function (e){
 	console.log(x, y);
 	if (tablero[x][y] == turn){
 		dibujar();
+		pluma.fillStyle = rgbstr([color1, color2][turn - 1])
 		seleccion = [x, y];
 		opciones = moves(tablero, [x, y]);
 		for (var ii=0; ii<opciones.length; ii++){
@@ -404,6 +428,7 @@ lienzo.addEventListener("click", function (e){
 			if (opciones[ii][0] == x && opciones[ii][1] == y){
 				mover(tablero, seleccion, opciones[ii]);
 				turn = 3 - turn;
+				n_movs++;
 				if (gana(tablero, 1) || gana(tablero, 2)){
 					empezar();
 				}
@@ -417,4 +442,4 @@ lienzo.addEventListener("click", function (e){
 empezar();
 dibujar();
 
-setInterval(actualizar, 800);
+setInterval(actualizar, 500);
