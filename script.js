@@ -110,33 +110,58 @@ function dibu_pieza(xx, yy, txt){
 	}
 }
 
+function linea(seq){
+	x1 = seq[0];
+	y1 = seq[1];
+	x2 = seq[2];
+	y2 = seq[3];
+	pluma.beginPath();
+	pluma.moveTo(MAR1 + 15*(y1-x1), 26*(x1+y1) + MAR2);
+	pluma.lineTo(MAR1 + 15*(y2-x2), 26*(x2+y2) + MAR2);
+	pluma.stroke();
+}
+
+lineas = [[9,2,10,2],
+[8,3,10,3],
+[4,4,13,4],
+[4,5,12,5],
+[4,6,11,6],
+[4,7,10,7],
+[3,8,10,8],
+[2,9,10,9],
+[1,10,10,10],
+[4,11,6,11],
+[4,12,5,12],
+[2,9,2,10],
+[3,8,3,10],
+[4,4,4,13],
+[5,4,5,12],
+[6,4,6,11],
+[7,4,7,10],
+[8,3,8,10],
+[9,2,9,10],
+[10,1,10,10],
+[11,4,11,6],
+[12,4,12,5],
+[4, 5, 5, 4],
+[4, 6, 6, 4],
+[1, 10, 10, 1],
+[2, 10, 10, 2],
+[3, 10, 10, 3],
+[4, 10, 10, 4],
+[4, 11, 11, 4],
+[4, 12, 12, 4],
+[4, 13, 13, 4],
+[8, 10, 10, 8],
+[9, 10, 10, 9],
+]
+
 function dibujar(){
 	pluma.fillStyle = "white";
 	pluma.fillRect(0, 0, screen_ancho, screen_alto);
 	pluma.fillStyle = "black";
-	pluma.beginPath();
-	pluma.moveTo(MAR1 - 90, 364 + MAR2);
-	pluma.lineTo(MAR1 + 90, 364 + MAR2);
-	pluma.stroke();
-	for (var ii=4; ii<11; ii++){
-		pluma.beginPath();
-		pluma.moveTo(15*(ii - 4) + MAR1, 26*(ii + 4) + MAR2);
-		pluma.lineTo(15*(ii - 10) + MAR1, 26*(ii + 10) + MAR2);
-		pluma.stroke();
-		pluma.beginPath();
-		pluma.moveTo(MAR1 - 15*(ii - 4), 26*(ii + 4) + MAR2);
-		pluma.lineTo(MAR1 - 15*(ii - 10), 26*(ii + 10) + MAR2);
-		pluma.stroke();
-	}
-	for (var ii = 2; ii<7; ii++){
-		pluma.beginPath();
-		pluma.moveTo(15*(ii - 1) + MAR1, 26*(ii + 7) + MAR2);
-		pluma.lineTo(MAR1 - 15*(ii - 1), 26*(ii + 7) + MAR2);
-		pluma.stroke();
-		pluma.beginPath();
-		pluma.moveTo(MAR1 - 15*(ii - 7), 26*(ii + 13) + MAR2);
-		pluma.lineTo(15*(ii - 7) + MAR1, 26*(ii + 13) + MAR2);
-		pluma.stroke();
+	for (ii=0; ii<33; ii++){
+		linea(lineas[ii]);
 	}
 	for (var ii=1; ii<14; ii++){
 		for (var jj=1; jj<14; jj++){
