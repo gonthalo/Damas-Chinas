@@ -302,8 +302,11 @@ function gana(tabl, turno){
 
 function minimax(tabl, turno, iter, ramas, interes, good){
 	if (good){
-		if (n_movs < 2){
+		if (n_movs == 1){
 			return [[[4, 7], [5, 7]], uf([4, 7], [5, 7], turn)]
+		}
+		if (n_movs == 0){
+			return [[[7, 10], [7, 9]], uf([7, 10], [7, 9], turn)]
 		}
 		if (gana(tabl, turno)||gana(tabl, 3 - turno)){
 			return [[[0, 0], [0, 0]]];
@@ -383,9 +386,9 @@ function actualizar(){
 	lis = movimientos(tablero, turn, 5);
 	jugada = [];
 	if (turn==1){
-		jugada = minimax(tablero, turn, 6, 6, 0.93, true)[0];
+		jugada = minimax(tablero, turn, 6, 5, 0.99, true)[0];
 	} else {
-		jugada = minimax(tablero, turn, 6, 6, 0.93, true)[0];
+		jugada = minimax(tablero, turn, 7, 4, 0.99, true)[0];
 	}
 	//console.log(jugada);
 	mover(tablero, jugada[0], jugada[1]);
